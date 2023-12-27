@@ -1,35 +1,77 @@
 from collections import UserDict
+from datetime import date, datetime
 
 
 class Field:
     def __init__(self, value):
-        self.value = value
+        self.__value = value
 
     def __str__(self):
-        return str(self.value)
+        return str(self.__value)
+
+    @property
+    def value(self):
+        return self.__value
+
+    @value.setter
+    def value(self, new_value):
+        self.__value = new_value
 
 
 class Name(Field):
     pass
-    # реалізація класу
 
 
 class Phone(Field):
 
-    def __init__(self, value):
-        super().__init__(value)
-        self.validate_phone(value)
+    def __init__(self, phone):
+        super().__init__(phone)
+        self.validate_phone(phone)
+
+        @property
+        def phone(self):
+            return self.__value
+
+        @phone.setter
+        def phone(self, phone_number):
+            if not phone_number.isdigit() or len(phone_number) != 10:
+                raise ValueError("Phone number must be a 10-digit number.")
+            else:
+                self.__value = phone_number
 
     def validate_phone(self, phone_number):
         if not phone_number.isdigit() or len(phone_number) != 10:
             raise ValueError("Phone number must be a 10-digit number.")
-    # реалізація класу
+
+
+class Birthday(Field):
+
+    def __init__(self, birthday=None):
+        super().__init__(birthday)
+        if birthday:
+            try:
+                birthday = datetime.strptime(birthday, "%d-%m-%Y").date()
+            except ValueError:
+                return "Incorrect birthday"
+
+        @property
+        def birthday(self):
+            return self.__value
+
+        @birthday.setter
+        def birthday(self, birthday):
+            try:
+                birthday = datetime.strptime(birthday, "%d-%m-%Y").date()
+            except ValueError:
+                return "Incorrect birthday"
+            self.__value = birthday
 
 
 class Record:
-    def __init__(self, name):
+    def __init__(self, name, birthday=None):
         self.name = Name(name)
         self.phones = []
+        self.birthday = Birthday(birthday)
 
     def add_phone(self, phone):
         self.phones.append(Phone(phone))
@@ -55,7 +97,21 @@ class Record:
                 return phone
         return None
 
-    # реалізація класу
+    def days_to_birthday(self):
+        print(self.birthday)
+        if self.birthday.value is not None:
+            today = date.today()
+            user_birthday = datetime.strptime(self.birthday.value, '%d-%m-%Y')
+            next_birthday = date(today.year, user_birthday.month, user_birthday.day)
+        else:
+            return None
+
+        if next_birthday < today:
+            next_birthday = next_birthday.replace(year=today.year+1)
+
+        number_of_days = next_birthday - today
+
+        return number_of_days
 
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
@@ -78,7 +134,11 @@ class AddressBook(UserDict):
             del self.data[name]
         return f"Name: {name} not found"
 
-    # реалізація класу
+    def iterator(self, N=int):
+
+        items = list(self.data.items())
+        for i in range(0, len(items), N):
+            yield items[i:i + N]
 
 
 # Створення нової адресної книги
