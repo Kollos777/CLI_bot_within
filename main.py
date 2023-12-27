@@ -101,7 +101,7 @@ class Record:
         print(self.birthday)
         if self.birthday.value is not None:
             today = date.today()
-            user_birthday = datetime.strptime(self.birthday.value, '%d-%m-%Y')
+            user_birthday = datetime.strptime(self.birthday.value, '%d.%m.%Y')
             next_birthday = date(today.year, user_birthday.month, user_birthday.day)
         else:
             return None
