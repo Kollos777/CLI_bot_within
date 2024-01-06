@@ -1,5 +1,6 @@
 from collections import UserDict
 from datetime import date, datetime
+import pickle
 
 
 class Field:
@@ -118,7 +119,6 @@ class Record:
 
 
 class AddressBook(UserDict):
-
     def add_record(self, name):
         self.data[name.name.value] = name
         print(self.data)
@@ -140,9 +140,39 @@ class AddressBook(UserDict):
         for i in range(0, len(items), N):
             yield items[i:i + N]
 
+    def save(self, file_name):
+        with open(file_name, 'wb') as file:
+            pickle.dump(self.data, file)
+
+    @classmethod
+    def load(cls, file_name):
+        with open(file_name, 'rb') as file:
+            data = pickle.load(file)
+            address_book = cls()
+            address_book.update(data)
+            return address_book
+
+    def search(self, value):
+        results = []
+        for name, record in self.data.items():
+
+            if value in name:
+                results.append((record))
+                continue
+
+            for phone in record.phones:
+                if value in phone.value:
+                    results.append((record))
+                    break
+
+        return results
+
 
 # Створення нової адресної книги
-book = AddressBook()
+try:
+    book = AddressBook.load('address_book.pkl')
+except FileNotFoundError:
+    book = AddressBook()
 
 # Створення запису для John
 john_record = Record("John")
@@ -151,7 +181,6 @@ john_record.add_phone("5555555555")
 
 # Додавання запису John до адресної книги
 book.add_record(john_record)
-
 # Створення та додавання нового запису для Jane
 jane_record = Record("Jane")
 jane_record.add_phone("9876543210")
@@ -173,3 +202,5 @@ print(f"{john.name}: {found_phone}")  # Виведення: 5555555555
 
 # Видалення запису Jane
 book.delete("Jane")
+
+book.save('address_book.pkl')
