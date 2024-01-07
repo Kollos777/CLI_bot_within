@@ -29,17 +29,6 @@ class Phone(Field):
         super().__init__(phone)
         self.validate_phone(phone)
 
-        @property
-        def phone(self):
-            return self.__value
-
-        @phone.setter
-        def phone(self, phone_number):
-            if not phone_number.isdigit() or len(phone_number) != 10:
-                raise ValueError("Phone number must be a 10-digit number.")
-            else:
-                self.__value = phone_number
-
     def validate_phone(self, phone_number):
         if not phone_number.isdigit() or len(phone_number) != 10:
             raise ValueError("Phone number must be a 10-digit number.")
@@ -54,18 +43,6 @@ class Birthday(Field):
                 birthday = datetime.strptime(birthday, "%d-%m-%Y").date()
             except ValueError:
                 return "Incorrect birthday"
-
-        @property
-        def birthday(self):
-            return self.__value
-
-        @birthday.setter
-        def birthday(self, birthday):
-            try:
-                birthday = datetime.strptime(birthday, "%d-%m-%Y").date()
-            except ValueError:
-                return "Incorrect birthday"
-            self.__value = birthday
 
 
 class Record:
